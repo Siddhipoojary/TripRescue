@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TripRescue Demo</title>
+<style>
+:root{--bg:#f4f7fb;--fg:#142033;--mut:#64748b;--card:#fff;--line:#e2e8f0;--acc:#4f46e5;--ok:#15966a;--warn:#d97706;--bad:#dc4545;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0 auto;max-width:1120px;padding:clamp(14px,3vw,32px);width:100%;background:radial-gradient(ellipse at top left,#e9edff 0,transparent 38%),var(--bg);color:var(--fg);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:stretch;gap:0}
+h1{grid-column:1/-1;font-size:clamp(30px,4vw,44px);letter-spacing:-1.6px;line-height:1.1;margin:4px 0 8px;font-weight:850;color:#111b34}h1:before{content:"TR";display:inline-grid;place-items:center;vertical-align:7px;width:35px;height:35px;margin-right:10px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#0ea5e9);color:white;font-size:13px;letter-spacing:0}
+.sub{grid-column:1/-1;color:var(--mut);margin:0 0 16px;font-size:16px}.badges{grid-column:1/-1;margin:0 0 12px}.badges span,.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;border:1px solid var(--line);border-radius:99px;padding:5px 10px;margin:2px 5px 2px 0;background:#fff;color:#475569}
+.card{grid-column:1/-1;width:100%;background:rgba(255,255,255,.94);border:1px solid #e4e9f2;border-radius:20px;padding:22px;margin:16px 0 12px;box-shadow:0 8px 28px rgba(25,43,82,.055);min-width:0;position:relative;overflow:visible}.card h2{font-size:16px;letter-spacing:-.2px;margin:0 0 14px;display:flex;align-items:center;gap:9px;color:#1e293b;min-width:0;overflow-wrap:anywhere}.card h2:before{content:"";flex:0 0 4px;width:4px;height:18px;border-radius:9px;background:linear-gradient(#4f46e5,#0ea5e9);display:inline-block}.card#plansCard,.card#outCard{grid-column:1/-1}
+.card:nth-of-type(1){background:linear-gradient(145deg,#fff 20%,#f0f5ff 100%)}
+
+.trip-help{color:var(--mut);margin:0 0 14px}.trip-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.trip-field{min-width:0}.trip-field label{display:block;font-size:12px;font-weight:750;color:#475569;margin:0 0 5px}.trip-field input,.trip-field select{display:block;width:100%;min-width:0;border:1px solid #dbe3f0;border-radius:10px;background:#f8faff;color:var(--fg);padding:10px;font:inherit}.trip-field input:focus,.trip-field select:focus{outline:2px solid #c7d2fe;border-color:#818cf8}.trip-summary{margin-top:16px;padding:14px;border:1px solid #dbe5f4;border-radius:12px;background:#f8faff;line-height:1.8}.trip-summary p{margin:3px 0}.trip-summary .trip-rules{color:var(--mut);font-size:13px}
+@media(max-width:760px){.trip-form{grid-template-columns:1fr}}
+
+.assist-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.assist-option{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfcff;font-size:14px}.assist-option input{margin-top:5px;accent-color:var(--acc)}.voice-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:10px}.voice-status{font-size:13px;color:var(--mut);min-width:0}.voice-note{font-size:12px;color:var(--mut);margin:8px 0 0}.btn-secondary{background:#eef2ff;color:#3730a3;box-shadow:none;border:1px solid #dbe3ff}.btn-secondary:hover:not(:disabled){box-shadow:0 4px 12px #4338ca18}.assist-summary{margin-top:12px;padding:10px 12px;border-radius:10px;background:#f8faff;border:1px solid #dbe5f4;font-size:13px;color:#475569}
+textarea{width:100%;min-height:92px;border-radius:12px;border:1px solid #dbe3f0;background:#f8faff;color:var(--fg);padding:13px 14px;font:inherit;resize:vertical;outline:none}textarea:focus{border-color:#818cf8;box-shadow:0 0 0 4px #e0e7ff}
+button{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;border:0;border-radius:11px;padding:12px 17px;font:inherit;font-weight:750;cursor:pointer;margin-top:10px;box-shadow:0 5px 14px #4f46e533;transition:transform .15s,box-shadow .15s}button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 18px #4f46e544}button:disabled{opacity:.45;cursor:default;box-shadow:none}input[type=range]{width:100%;accent-color:var(--acc);margin:18px 0 4px}.chain{display:flex;flex-direction:column;gap:5px}.node{border:1px solid var(--line);border-left:5px solid var(--mut);background:#fbfcff;border-radius:12px;padding:11px 13px}.node b{display:block;font-size:14px}.node small{color:var(--mut);font-size:12px}.ok{border-left-color:var(--ok);background:#f0fdf7}.warn{border-left-color:var(--warn);background:#fffbeb}.bad{border-left-color:var(--bad);background:#fff5f5}.arrow{text-align:center;color:#94a3b8;line-height:1.15;font-size:14px}.log div{padding:10px 0;border-bottom:1px dashed var(--line);font-size:13px}.log div:last-child{border-bottom:0}.plan{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:15px;margin:10px 0;cursor:pointer;transition:border-color .15s,box-shadow .15s}.plan:hover{border-color:#a5b4fc;box-shadow:0 5px 18px #1e293b0b}.plan.sel{border-color:var(--acc);background:#f5f6ff;box-shadow:0 0 0 3px #e0e7ff}.plan .row{display:flex;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;color:var(--mut);font-size:12px;margin-top:10px}.score{font-weight:800;color:#312e81}.rec{background:#dcfce7;color:#166534;border-radius:99px;font-size:11px;padding:4px 8px;margin-left:8px;white-space:nowrap}.tag{background:#f8fafc;margin-top:8px}pre{white-space:pre-wrap;background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;color:#334155}details{margin-top:14px;color:var(--mut);font-size:13px}details summary{cursor:pointer;font-weight:700;color:#475569}.hide{display:none}.sub small{font-size:12px}
+@media(max-width:760px){body{padding:18px 14px 32px}h1{font-size:clamp(28px,7vw,36px)}.card{padding:clamp(15px,4vw,20px);border-radius:16px}.trip-form{grid-template-columns:repeat(2,minmax(0,1fr))}.plan .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.trip-form,.assist-grid{grid-template-columns:1fr}.plan .row{grid-template-columns:1fr}.badges span{margin-bottom:5px}.voice-bar button{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<h1>🧭 TripRescue</h1>
+<p class="sub">Others rebook a flight. <strong>We rescue the whole trip.</strong> &nbsp;·&nbsp; AI-powered travel disruption recovery</p>
+
+
+<div class="card">
+<h2>Your Trip Overview</h2>
+<p class="trip-help">Enter the bookings and important events for this trip. Your summary updates from these details.</p>
+<div class="trip-form">
+  <div class="trip-field"><label for="flightFrom">✈️ Flight origin</label><input id="flightFrom" value="Mumbai" placeholder="Departure city"></div>
+  <div class="trip-field"><label for="flightTo">Flight destination</label><input id="flightTo" value="Delhi" placeholder="Arrival city"></div>
+  <div class="trip-field"><label for="flightArrival">Flight arrival time</label><input id="flightArrival" type="time" value="15:00"></div>
+  <div class="trip-field"><label for="trainFrom">🚆 Train origin</label><input id="trainFrom" value="Delhi" placeholder="Departure station / city"></div>
+  <div class="trip-field"><label for="trainTo">Train destination</label><input id="trainTo" value="Jaipur" placeholder="Arrival station / city"></div>
+  <div class="trip-field"><label for="trainDepart">Train departure</label><input id="trainDepart" type="time" value="16:15"></div>
+  <div class="trip-field"><label for="trainArrival">Train arrival</label><input id="trainArrival" type="time" value="21:15"></div>
+  <div class="trip-field"><label for="hotelDetails">🏨 Hotel / stay</label><input id="hotelDetails" value="Jaipur hotel" placeholder="Hotel name or city"></div>
+  <div class="trip-field"><label for="hotelCheckin">Hotel check-in deadline</label><input id="hotelCheckin" type="time" value="23:00"></div>
+  <div class="trip-field"><label for="cabDetails">🚕 Cab / transfer (optional)</label><input id="cabDetails" placeholder="e.g. Airport pickup at 15:30"></div>
+  <div class="trip-field"><label for="eventType">📌 Important event</label><select id="eventType"><option>Interview</option><option>Meeting</option><option>Exam</option><option>Conference</option><option>Appointment</option><option>Other event</option></select></div>
+  <div class="trip-field"><label for="eventLocation">Event location</label><input id="eventLocation" value="Jaipur" placeholder="City / venue"></div>
+  <div class="trip-field"><label for="eventWhen">Event date</label><input id="eventWhen" value="Tomorrow" placeholder="e.g. 22 Oct 2026"></div>
+  <div class="trip-field"><label for="eventTime">Event time</label><input id="eventTime" type="time" value="10:00"></div>
+  <div class="trip-field"><label for="reachBy">Must arrive by</label><input id="reachBy" type="time" value="09:00"></div>
+  <div class="trip-field"><label for="budget">Maximum extra budget (₹)</label><input id="budget" type="number" min="0" step="500" value="8000"></div>
+</div>
+<button type="button" id="updateTrip">Refresh Trip Overview</button>
+<div id="tripSummary" class="trip-summary" aria-live="polite"></div>
+</div>
+
+<div class="card" id="accessibilityCard">
+<h2>Special Care &amp; Accessibility</h2>
+<p class="trip-help">Personalize recovery plans for the traveller.</p>
+<div class="assist-grid">
+<label class="assist-option"><input type="checkbox" id="needWheelchair"> <span><b>Wheelchair / step-free access</b><br><span class="voice-note">Prefer step-free routes and accessible transfers.</span></span></label>
+<label class="assist-option"><input type="checkbox" id="needElderly"> <span><b>Elderly traveller</b><br><span class="voice-note">Allow more transfer time and reduce rushed changes.</span></span></label>
+<label class="assist-option"><input type="checkbox" id="needChildren"> <span><b>Travelling with children</b><br><span class="voice-note">Prefer fewer changes and family-friendly waits.</span></span></label>
+<label class="assist-option"><input type="checkbox" id="needMedical"> <span><b>Medical assistance / extra rest</b><br><span class="voice-note">Prioritize rest time and flag assistance to confirm.</span></span></label>
+</div>
+<div id="accessibilitySummary" class="assist-summary">No special assistance preferences selected.</div>
+</div>
+
+<div class="card">
+<h2>01 &nbsp; Describe the disruption</h2>
+<p class="trip-help">Type the disruption or use your voice. Example: “My flight is cancelled and I’m stuck in Delhi.”</p>
+<textarea id="say">My flight is delayed by 2 hours and I have an interview in Jaipur tomorrow at 10 AM.</textarea>
+<div class="voice-bar">
+<button type="button" id="voiceInput" class="btn-secondary">🎙️ Speak disruption</button>
+<button type="button" id="speakSummary" class="btn-secondary">🔊 Read trip status aloud</button>
+<span id="voiceStatus" class="voice-status" aria-live="polite"></span>
+</div>
+<p class="voice-note">Voice uses your browser's speech recognition and text-to-speech where supported. No audio is sent to a travel provider by this demo.</p>
+
+
+<div class="card">
+<h2>02 &nbsp; Test a delay scenario</h2>
+Delay: <b id="dv">2</b> hours (try 0.25, 3, 6)
+<input type="range" id="slider" min="0" max="6" step="0.25" value="2">
+</div>
+<button id="run">Run TripRescue</button>
+</div>
+
+<div class="card">
+<h2>03 &nbsp; Live impact map</h2>
+<div class="chain" id="chain"></div><br>
+<div class="badges"><span>🟡 Simulated </span><span>🔴 Estimated </span><span>✅ Approved</span></div>
+</div>
+
+<div class="card">
+<h2>04 &nbsp; Multi-agent activity</h2>
+<div class="log" id="log"><div style="color:var(--mut)">Your agents are ready. Run the simulation to trace the disruption and compare recovery options.</div></div>
+</div>
+
+<div class="card hide" id="plansCard">
+<h2>05 &nbsp; Recommended recovery options <small style="color:var(--mut);font-weight:400">(select a plan)</small></h2>
+<div id="plans"></div>
+<details><summary>Why not the others?</summary><div id="rej"></div></details>
+<button id="approve" disabled>Approve selected plan</button>
+</div>
+
+<div class="card hide" id="outCard">
+<h2>06 &nbsp; Your recovery brief</h2>
+<div id="out"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function updateTripSummary(){
+  const val=id=>($(id).value||'').trim();
+  const line=(emoji,label,value)=>value?`<p>${emoji} <b>${label}:</b> ${escapeTrip(value)}</p>`:'';
+  const budget=val('budget');
+  $('tripSummary').innerHTML=
+    line('✈️','Flight',((val('flightFrom')||'Origin')+' → '+(val('flightTo')||'Destination'))+(val('flightArrival')?' — arrives '+val('flightArrival'):''))+
+    line('🚆','Train',((val('trainFrom')||'Origin')+' → '+(val('trainTo')||'Destination'))+(val('trainDepart')?' — departs '+val('trainDepart'):'')+(val('trainArrival')?', arrives '+val('trainArrival'):''))+
+    line('🏨','Hotel / stay',val('hotelDetails')+(val('hotelCheckin')?' — check-in until '+val('hotelCheckin'):''))+
+    line('🚕','Cab / transfer',val('cabDetails'))+
+    line('📌',val('eventType')||'Important event',(val('eventLocation')?val('eventLocation')+' · ':'')+(val('eventWhen')?val('eventWhen')+' · ':'')+(val('eventTime')||''))+
+    `<p class="trip-rules">Your rules: ${val('reachBy')?'reach the destination by '+escapeTrip(val('reachBy'))+'; ':''}${budget?'maximum extra budget ₹'+Number(budget).toLocaleString('en-IN'): 'no extra budget specified'}.</p>`;
+}
+function escapeTrip(value){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+const fmt=h=>{let t=Math.round(h*60),x=((t%1440)+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')+(h>=24?' (+1)':'')};
+const OPTS=[
+{id:'flt',name:'Flight Delhi → Jaipur 18:00',arr:()=>19.08,cost:5200,stress:25,late:16.5},
+{id:'bus',name:'Overnight bus 18:30',arr:()=>24.5,cost:900,stress:45,late:17.5},
+{id:'prem',name:'Reserved chair-car train 19:45',arr:()=>24.83,cost:1400,stress:22,late:18.5},
+{id:'trn',name:'Train 20:40',arr:()=>25.67,cost:600,stress:40,late:19.5},
+{id:'cab',name:'Pre-booked cab, leaves on landing',arr:d=>20.75+d,cost:6500,stress:30,late:99},
+{id:'mor',name:'Morning train 05:50',arr:()=>34.33,cost:600,stress:20,late:99}
+];
+let d=2,ran=false,sel=null,plans=[],rejected=[],approved=false;
+
+function getNeeds(){
+  const needs={wheelchair:$('needWheelchair').checked,elderly:$('needElderly').checked,children:$('needChildren').checked,medical:$('needMedical').checked};
+  needs.any=Object.values(needs).some(Boolean);
+  return needs;
+}
+function updateAccessibilitySummary(){
+  const labels=[];
+  if($('needWheelchair').checked)labels.push('wheelchair / step-free access');
+  if($('needElderly').checked)labels.push('elderly traveller support');
+  if($('needChildren').checked)labels.push('travelling with children');
+  if($('needMedical').checked)labels.push('medical assistance / extra rest');
+  $('accessibilitySummary').textContent=labels.length?'Selected preferences: '+labels.join(', ')+'. The planner will consider comfort in its demo score; actual accessibility must be verified.':'No special assistance preferences selected.';
+  if(ran)render();
+}
+function evaluate(){
+  const land=15+d;rejected=[];const ok=[];
+  OPTS.forEach(o=>{
+    const arr=o.arr(d);
+    if(land>o.late){rejected.push([o.name,'You land at '+fmt(land)+', too late to catch it.']);return}
+    if(arr>33){rejected.push([o.name,'Arrives '+fmt(arr)+', which misses your interview or your 09:00 rule.']);return}
+    if(o.cost>8000){rejected.push([o.name,'Over your ₹8,000 budget.']);return}
+    const buffer=o.late-land,tight=buffer<0.5;
+    const needs=getNeeds();
+    const comfortPriority=needs.any?((o.id==='cab'?8:0)+(o.stress<=25?4:0)+(tight?-10:0)):0;
+    const score=Math.round(100-(arr-21)*2-o.cost/400-o.stress*0.6-(tight?8:0)+comfortPriority);
+    const careNote=needs.any?'Comfort preference adjustment applied to direct/lower-stress options; accessibility and provider assistance are unverified and must be confirmed.':'Standard recovery scoring.';
+    ok.push({...o,arr:arr,tight,score,careNote});
+  });
+  const by=(f)=>ok.slice().sort(f)[0];
+  const pick=[['⚡ Fastest',by((a,b)=>a.arr-b.arr)],['💰 Cheapest',by((a,b)=>a.cost-b.cost)],['😌 Least stressful',by((a,b)=>a.stress-b.stress)]];
+  const m={};
+  pick.forEach(([l,o])=>{if(!o)return;(m[o.id]=m[o.id]||{o,tags:[]}).tags.push(l)});
+  plans=Object.values(m);
+  if(plans.length){const best=plans.reduce((a,b)=>b.o.score>a.o.score?b:a);best.rec=true}
+  if(sel&&!plans.find(p=>p.o.id===sel))sel=null;
+}
+
+function chain(){
+  const land=15+d;
+  const fl=d===0?['ok','On time, lands 15:00']:['bad','Delayed '+d+' h, lands '+fmt(land)];
+  const gap=16.25-(land+1);
+  const tr=gap>=0.25?['ok','Connection safe']:gap>=0?['warn','Tight connection']:['bad','Connection missed (needs 1 h after landing)'];
+  const hotel=tr[0]==='ok'?['ok','Check-in on time']:['bad','Late check-in likely, tonight’s room at risk'];
+  let iv;
+  if(!plans.length)iv=['bad','No plan meets your rules'];
+  else if(sel){const p=plans.find(x=>x.o.id===sel);iv=['ok','Safe: arrive '+fmt(p.o.arr)+' with your plan']}
+  else iv=tr[0]==='ok'?['ok','Safe']:['warn','Protected only if you pick a plan'];
+  const n=[['✈️ Flight',fl],['🚆 Train 16:15',tr],['🏨 Hotel check-in',hotel],['📌 Interview 10:00',iv]];
+  $('chain').innerHTML=n.map((x,i)=>(i?'<div class="arrow">↓</div>':'')+'<div class="node '+x[1][0]+'"><b>'+x[0]+'</b><small>'+x[1][1]+'</small></div>').join('');
+}
+
+function render(){
+  $('dv').textContent=d;evaluate();chain();
+  if(!ran)return;
+  $('plansCard').classList.remove('hide');
+  $('plans').innerHTML=plans.length?plans.map(p=>'<div class="plan '+(sel===p.o.id?'sel':'')+'" data-id="'+p.o.id+'"><b>'+p.o.name+'</b>'+(p.rec?'<span class="rec">Recommended</span>':'')+'<div>'+p.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+'</div><div class="row"><span>Arrives Jaipur '+fmt(p.o.arr)+'</span><span>Extra cost ₹'+p.o.cost.toLocaleString('en-IN')+' 🔴</span><span>'+(p.o.tight?'⚠️ tight connection':'✔ safe buffer')+'</span><span class="score">RescueScore '+p.o.score+'</span></div></div>').join(''):'<b>No plan meets all your rules.</b> Try relaxing the budget or arrival time.';
+  $('rej').innerHTML=rejected.map(r=>'<p><b>'+r[0]+'</b><br>'+r[1]+'</p>').join('')||'<p>Nothing rejected.</p>';
+  document.querySelectorAll('.plan').forEach(e=>e.onclick=()=>{sel=e.dataset.id;approved=false;$('outCard').classList.add('hide');render()});
+  $('approve').disabled=!sel;
+}
+
+function runAgents(){
+  const land=15+d;ran=false;sel=null;approved=false;
+  $('plansCard').classList.add('hide');$('outCard').classList.add('hide');
+  $('run').disabled=true;$('log').innerHTML='';
+  const lines=[
+   '🔎 <b>Disruption Detector:</b> flight delayed '+d+' h (🟡 simulated feed). New landing '+fmt(land)+'. Train at 16:15 is '+(land+1>16.25?'at risk':'still reachable')+'.',
+   '🔗 <b>Impact Mapper:</b> train, hotel check-in and your 10:00 interview are all downstream of this delay.',
+   '🧠 <b>Recovery Planner:</b> checked '+OPTS.length+' options against your rules and scored them with RescueScore.',
+   '📩 <b>Recovery Assistant:</b> messages and claim notes are drafted. Waiting for your approval.'
+  ];
+  lines.forEach((t,i)=>setTimeout(()=>{
+    const el=document.createElement('div');el.innerHTML=t;$('log').appendChild(el);
+    if(i===lines.length-1){ran=true;$('run').disabled=false;render();setVoiceStatus('Simulation complete. You can select a plan or ask the assistant to read the trip status aloud.');}
+  },700*(i+1)));
+}
+
+$('slider').oninput=e=>{d=parseFloat(e.target.value);syncDisruptionText();approved=false;$('outCard').classList.add('hide');render()};
+$('run').onclick=()=>{
+  const t=$('say').value.toLowerCase();
+  if(/cancel/.test(t))d=6;
+  else{const m=t.match(/(\d+(\.\d+)?)\s*(hour|hr|h)/);if(m)d=Math.max(0,Math.min(6,parseFloat(m[1])))}
+  $('slider').value=d;render();runAgents();
+};
+$('approve').onclick=()=>{
+  const p=plans.find(x=>x.o.id===sel);if(!p)return;approved=true;
+  const arr=p.o.arr,late=arr>23;
+  $('out').innerHTML=
+   '<b>✅ Approved plan:</b> '+p.o.name+', arriving '+fmt(arr)+'. <small>(Demo only. No real booking is made.)</small>'+
+   '<p><b>Message to hotel</b></p><pre>Hello, I have a booking tonight under Riya S. My travel was disrupted by a flight delay and I now expect to reach around '+fmt(arr)+'. Please hold my room'+(late?' and confirm late check-in':'')+'. Thank you.</pre>'+
+   '<p><b>Backup stay</b> 🟡</p><p>'+(late?'You may arrive after check-in closes. Backup: a hotel near Jaipur station with a 24-hour front desk, about ₹2,200 🔴 estimate.':'Not needed, you should arrive before check-in closes.')+'</p>'+
+   '<p><b>Refund rules card</b> 🔴 estimate</p><ul><li>Unused 16:15 train ticket may be refundable. Check the railway cancellation rules.</li><li>For a '+d+'-hour airline delay, meal or compensation may apply depending on airline policy. Verify before claiming.</li><li>Extra cost of this plan: about ₹'+p.o.cost.toLocaleString('en-IN')+'.</li></ul>';
+  $('outCard').classList.remove('hide');$('outCard').scrollIntoView({behavior:'smooth'});
+};
+
+let recognition=null;
+function setVoiceStatus(message){$('voiceStatus').textContent=message;}
+function speakText(text){
+  if(!('speechSynthesis' in window)){setVoiceStatus('Text-to-speech is not supported in this browser.');return;}
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.lang='en-IN';utterance.rate=0.95;
+  utterance.onstart=()=>setVoiceStatus('Speaking…');
+  utterance.onend=()=>setVoiceStatus('Voice assistant ready.');
+  utterance.onerror=()=>setVoiceStatus('Could not play speech. Check browser audio settings.');
+  window.speechSynthesis.speak(utterance);
+}
+function startVoiceInput(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){setVoiceStatus('Speech recognition is not supported here. Try Chrome or type your disruption.');return;}
+  if(recognition){try{recognition.stop()}catch(e){}}
+  recognition=new SpeechRecognition();recognition.lang='en-IN';recognition.interimResults=false;recognition.maxAlternatives=1;
+  recognition.onstart=()=>setVoiceStatus('Listening… describe your travel disruption.');
+  recognition.onresult=event=>{
+    const transcript=event.results[0][0].transcript;
+    $('say').value=transcript;
+    setVoiceStatus('Voice captured. Review the text, then run TripRescue.');
+    speakText('I heard: '+transcript+'. Review the disruption and press Run TripRescue when you are ready.');
+  };
+  recognition.onerror=event=>setVoiceStatus('Voice input error: '+event.error+'. You can type your disruption instead.');
+  recognition.onend=()=>{if($('voiceStatus').textContent.startsWith('Listening'))setVoiceStatus('Listening stopped. You can try again or type instead.');};
+  try{recognition.start()}catch(e){setVoiceStatus('Could not start the microphone. Check browser permission and try again.');}
+}
+function readTripStatus(){
+  const nodes=[...document.querySelectorAll('#chain .node')].map(node=>node.innerText.replace(/\n/g,': '));
+  const trip=$('tripSummary').innerText.replace(/\n/g,'. ');
+  const impact=nodes.length?nodes.join('. '):'Run the simulation to calculate the impact map.';
+  speakText('Trip overview. '+trip+'. Live impact map. '+impact+'. Costs and impact are simulated estimates, not live provider data.');
+}
+$('voiceInput').addEventListener('click',startVoiceInput);
+$('speakSummary').addEventListener('click',readTripStatus);
+['needWheelchair','needElderly','needChildren','needMedical'].forEach(id=>$(id).addEventListener('change',updateAccessibilitySummary));
+
+document.getElementById('updateTrip').addEventListener('click',updateTripSummary);
+document.querySelectorAll('.trip-form input,.trip-form select').forEach(el=>el.addEventListener('input',updateTripSummary));
+function syncDisruptionText(){
+  const hours=Number(d);
+  const delayText=Number.isInteger(hours)?String(hours):String(hours);
+  const eventType=($('eventType').value||'important event').toLowerCase();
+  const eventLocation=$('eventLocation').value.trim()||'my destination';
+  const eventWhen=$('eventWhen').value.trim()||'as scheduled';
+  const eventTime=$('eventTime').value||'10:00';
+  const prettyTime=eventTime.replace(/^(\d{2}):(\d{2})$/,(_,h,m)=>{const n=Number(h);return `${n%12||12}:${m} ${n>=12?'PM':'AM'}`});
+  $('say').value=`My flight is delayed by ${delayText} hours and I have a ${eventType} in ${eventLocation} ${eventWhen} at ${prettyTime}.`;
+}
+updateTripSummary();
+syncDisruptionText();
+updateAccessibilitySummary();
+render();
+</script>
+</body>
+</html>
